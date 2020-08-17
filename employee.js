@@ -80,7 +80,7 @@ function exit() {
   connection.end();
 }
 
-// completed
+// ---------------- View all employees --------------------------------------
 function viewAllEmployees() {
   const query1 = `SELECT employee.id, employee.first_name, employee.last_name,role.title as role, department.name as department, role.salary, concat(m.first_name, ' ',m.last_name) as manager 
   FROM employee INNER JOIN role ON (employee.role_id = role.id) INNER JOIN department ON(department.id = role.department_id)
@@ -91,7 +91,9 @@ function viewAllEmployees() {
     startProgram();
   });
 }
-// completed
+// --------------------------------------------------------------------------
+
+// ---------------- View employees by department -------------------------------------
 function viewAllEmployeesByDepart() {
   const query2 = `select department.id,department.name
   FROM employee INNER JOIN role ON (employee.role_id = role.id) INNER JOIN department ON (department.id = role.department_id) group by department.id,department.name;`;
@@ -105,7 +107,7 @@ function viewAllEmployeesByDepart() {
     promptDepartment(departmentChoices);
   });
 }
-// completed
+
 function promptDepartment(departmentChoices) {
   inquirer
     .prompt({
@@ -124,7 +126,9 @@ function promptDepartment(departmentChoices) {
       });
     });
 }
-// completed
+// -----------------------------------------------------------------------------------
+
+// ---------------- View employees by manager ----------------------------
 function viewAllEmployeesByManager() {
   const query3 = 'select employee.id, employee.first_name,employee.last_name FROM employee;';
   connection.query(query3, (err, res) => {
@@ -137,7 +141,7 @@ function viewAllEmployeesByManager() {
     promptManager(managerChoices);
   });
 }
-//completed
+
 function promptManager(managerChoices) {
   inquirer
     .prompt({
@@ -157,7 +161,9 @@ function promptManager(managerChoices) {
       });
     });
 }
+// -----------------------------------------------------------------------
 
+// ---------------- Add employee -----------------------------------------------------
 function addEmployee() {
   inquirer
     .prompt([
@@ -194,8 +200,9 @@ function addEmployee() {
       });
     });
 }
+// -----------------------------------------------------------------------------------
 
-// completed
+// ---------------- Remove employee --------------------------------------
 function removeEmployee() {
   const query = 'select employee.id, employee.first_name,employee.last_name FROM employee;';
   connection.query(query, (err, res) => {
@@ -228,34 +235,69 @@ function promptEmployee(EmployeeChoices) {
       });
     });
 }
+// ------------------------------------------------------------------------
+
+// ----------------Update Employee role ----------------------------------------------------
 
 function updateEmployeeRole() {
+  const query1 = 'select employee.id, employee.first_name,employee.last_name FROM employee;';
+  connection.query(query1, (err, res) => {
+    if (err) throw err;
+    const employeeChoices = res.map((data) => ({
+      value: data.id, name: `${data.first_name} ${data.last_name}`,
+    }));
+    getName(employeeChoices);
+  });
+}
+
+function getName(employeeChoices) {
   inquirer
-    .prompt([
+    .prompt(
       {
-        name: 'employee_name',
+        name: 'employee_id',
         type: 'list',
         message: 'Which employees role you would like to update ?',
-        choices: [],
+        choices: employeeChoices,
       },
+    )
+    .then((answer) => {
+      getRole(answer.employee_id);
+    });
+}
+
+function getRole(employeeId) {
+  const query2 = 'select role.id, role.title FROM role;';
+  connection.query(query2, (err, res) => {
+    if (err) throw err;
+    const roleChoices = res.map((data) => ({
+      value: data.id, name: data.title,
+    }));
+    promptRoleUpdate(roleChoices, employeeId);
+  });
+}
+
+function promptRoleUpdate(roleChoices, employeeId) {
+  inquirer
+    .prompt(
       {
-        name: 'employee_role',
+        name: 'role_id',
         type: 'list',
         message: 'What is the role you would like to update to ?',
-        choices: [],
+        choices: roleChoices,
       },
-    ])
+    )
     .then((answer) => {
-      const query6 = 'update employee set employee.role_id=? where employee.first_name=? and employee.last_name=?';
-      connection.query(query6, [answer.employee_name, answer.employee_role], (err, res) => {
+      const query6 = 'update employee set employee.role_id=? where employee.id=?';
+      connection.query(query6, [answer.role_id, employeeId], (err, res) => {
         if (err) throw err;
         console.table(res);
         startProgram();
       });
     });
 }
+//-----------------------------------------------------------------------------------------
 
-// completed
+// ---------------- View all roles ----------------------------------------
 function viewAllRoles() {
   const query7 = 'select id,title as Roles from role';
   connection.query(query7, (err, res) => {
@@ -264,7 +306,9 @@ function viewAllRoles() {
     startProgram();
   });
 }
+// ------------------------------------------------------------------------
 
+// ----------------Add role -----------------------------------------------------------------
 function addRole() {
   inquirer
     .prompt([
@@ -295,8 +339,9 @@ function addRole() {
       });
     });
 }
+//-------------------------------------------------------------------------------------------
 
-//completed
+// ----------------Remove role --------------------------------------------
 function removeRole() {
   const query = 'select role.id, role.title FROM role;';
   connection.query(query, (err, res) => {
@@ -309,7 +354,7 @@ function removeRole() {
     promptRole(roleChoices);
   });
 }
-//completed
+
 function promptRole(roleChoices) {
   inquirer
     .prompt([
@@ -329,3 +374,4 @@ function promptRole(roleChoices) {
       });
     });
 }
+// -------------------------------------------------------------------------

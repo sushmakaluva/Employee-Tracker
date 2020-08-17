@@ -195,6 +195,7 @@ function addEmployee() {
     });
 }
 
+// completed
 function removeEmployee() {
   const query = 'select employee.id, employee.first_name,employee.last_name FROM employee;';
   connection.query(query, (err, res) => {
@@ -212,15 +213,15 @@ function promptEmployee(EmployeeChoices) {
   inquirer
     .prompt([
       {
-        name: 'employee_name',
+        name: 'employee_id',
         type: 'list',
         message: 'Which employee you would like to remove?',
         choices: EmployeeChoices,
       },
     ])
     .then((answer) => {
-      const query5 = 'DELETE FROM employee where employee.first_name=? and employee.last_name=?;';
-      connection.query(query5, [answer.id], (err, res) => {
+      const query5 = 'DELETE FROM employee where employee.id=?;';
+      connection.query(query5, [answer.employee_id], (err, res) => {
         if (err) throw err;
         console.table(res);
         startProgram();
@@ -295,19 +296,33 @@ function addRole() {
     });
 }
 
+//completed
 function removeRole() {
+  const query = 'select role.id, role.title FROM role;';
+  connection.query(query, (err, res) => {
+    if (err) throw err;
+    const roleChoices = res.map((data) => ({
+      value: data.id, name: data.title,
+    }));
+    // console.table(res);
+    // console.log(roleChoices);
+    promptRole(roleChoices);
+  });
+}
+//completed
+function promptRole(roleChoices) {
   inquirer
     .prompt([
       {
-        name: 'role',
+        name: 'id',
         type: 'list',
         message: 'Which role would you like to remove?',
-        choices: [],
+        choices: roleChoices,
       },
     ])
     .then((answer) => {
-      const query9 = 'delete from role where role.title=?;';
-      connection.query(query9, [answer.role], (err, res) => {
+      const query9 = 'delete from role where role.id=?;';
+      connection.query(query9, [answer.id], (err, res) => {
         if (err) throw err;
         console.table(res);
         startProgram();

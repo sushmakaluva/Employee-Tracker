@@ -148,30 +148,86 @@ function promptManager() {
 }
 
 function addEmployee() {
-  const query4 = '';
-  connection.query(query4, (err, res) => {
-    if (err) throw err;
-    console.table(res);
-    startProgram();
-  });
+  inquirer
+    .prompt([
+      {
+        name: 'first_name',
+        type: 'input',
+        message: 'What is the employees first name?',
+      },
+      {
+        name: 'last_name',
+        type: 'input',
+        message: 'What is the employees last name?',
+      },
+      {
+        name: 'employee_role',
+        type: 'list',
+        message: 'What is the employees role?',
+        choices: ['Salesperson', 'Software Engineer', 'Sales Lead', 'Lead Engineer', 'Accountant', 'Finance Lead'],
+      },
+      {
+        name: 'employee_manager',
+        type: 'list',
+        message: 'Who is the employees manager?',
+        choices: ['None', 'Ashley Rodriguez', 'Christian Eckenrode', 'John Doe', 'Mike Chan', 'Malia Brown', 'Tom Allen ', 'Kevin Tupik', 'Sarah Lourd'],
+      },
+    ])
+    .then((answer) => {
+      const query4 = '';
+      connection.query(query4, [answer.first_name, answer.last_name, answer.employee_role, answer.employee_manager], (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        startProgram();
+      });
+    });
 }
 
 function removeEmployee() {
-  const query5 = '';
-  connection.query(query5, (err, res) => {
-    if (err) throw err;
-    console.table(res);
-    startProgram();
-  });
+  inquirer
+    .prompt([
+      {
+        name: 'employee_name',
+        type: 'list',
+        message: 'Which employee you would like to remove?',
+        choices: [],
+      },
+    ])
+    .then((answer) => {
+      const answer2 = answer.split(' ');
+      const query5 = 'DELETE FROM employee where employee.first_name=? and employee.last_name=?;';
+      connection.query(query5, [answer2[0].employee_name, answer2[1].employee_name], (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        startProgram();
+      });
+    });
 }
 
 function updateEmployeeRole() {
-  const query6 = '';
-  connection.query(query6, (err, res) => {
-    if (err) throw err;
-    console.table(res);
-    startProgram();
-  });
+  inquirer
+    .prompt([
+      {
+        name: 'employee_name',
+        type: 'list',
+        message: 'Which employees role you would like to update ?',
+        choices: [],
+      },
+      {
+        name: 'employee_role',
+        type: 'list',
+        message: 'What is the role you would like to update to ?',
+        choices: [],
+      },
+    ])
+    .then((answer) => {
+      const query6 = 'update employee set employee.role_id=? where employee.first_name=? and employee.last_name=?';
+      connection.query(query6, [answer.employee_name, answer.employee_role](err, res) => {
+        if(err) throw err;
+        console.table(res);
+        startProgram();
+      });
+    });
 }
 
 function viewAllRoles() {
@@ -184,19 +240,52 @@ function viewAllRoles() {
 }
 
 function addRole() {
-  const query8 = '';
-  connection.query(query8, (err, res) => {
-    if (err) throw err;
-    console.table(res);
-    startProgram();
-  });
+  inquirer
+    .prompt([
+      {
+        name: 'role_title',
+        type: 'input',
+        message: 'Which role would you like to add ?',
+      },
+      {
+        name: 'role_salary',
+        type: 'input',
+        message: 'Enter the salary for the role?',
+      },
+      {
+        name: 'role_department_id',
+        type: 'list',
+        message: 'Which department the role is under?',
+        choices: [],
+      },
+
+    ])
+    .then((answer) => {
+      const query8 = 'insert into role (title,salary,department_id) values(?,?,?);';
+      connection.query(query8, [answer.role_title, answer.role_salary, answer.role_department_id], (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        startProgram();
+      });
+    });
 }
 
 function removeRole() {
-  const query9 = '';
-  connection.query(query9, (err, res) => {
-    if (err) throw err;
-    console.table(res);
-    startProgram();
-  });
+  inquirer
+    .prompt([
+      {
+        name: 'role',
+        type: 'list',
+        message: 'Which role would you like to remove?',
+        choices: [],
+      },
+    ])
+    .then((answer) => {
+      const query9 = 'delete from role where role.title=?;';
+      connection.query(query9, [answer.role], (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        startProgram();
+      });
+    });
 }

@@ -6,7 +6,7 @@ VALUES
 ("Kevin", "Tupik", 3,null), 
 ("Malia", "Brown", 6,6), 
 ("Sarah", "Lourd", 5, null),
-("Tom", "Allen", 4, 7), 
+("Tom", "Allen", 4, 8), 
 ("Christian", "Eckenrode", 1, 2);
 
 

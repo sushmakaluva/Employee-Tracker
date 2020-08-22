@@ -1,11 +1,10 @@
 # Employee-Tracker
 
-
-![ScreenShot](assets/employee_tracker.gif)
-
 ## Description
 
 The Employee Tarcker is a CLI application that takes works on the databse tables-employees,roles,departments and does all the sql operations on these tables based on the input given by user.
+
+![ScreenShot](assets/employee_tracker.gif)
 
 ## Installation
 

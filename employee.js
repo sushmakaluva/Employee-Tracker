@@ -165,6 +165,23 @@ function promptManager(managerChoices) {
 
 // ---------------- Add employee -----------------------------------------------------
 function addEmployee() {
+  const query2 = 'select role.id, role.title FROM role;';
+  connection.query(query2, (err, res) => {
+    if (err) throw err;
+    const roleChoices = res.map((data) => ({
+      value: data.id, name: data.title,
+    }));
+    const query3 = 'select employee.id, employee.first_name,employee.last_name FROM employee;';
+    connection.query(query3, (err1, res1) => {
+      if (err1) throw err1;
+      const managerChoices = res1.map((data) => ({
+        value: data.id, name: `${data.first_name} ${data.last_name}`,
+      }));
+      getFirstLastNameRole(roleChoices, managerChoices);
+    });
+  });
+}
+function getFirstLastNameRole(roleChoices, managerChoices) {
   inquirer
     .prompt([
       {
@@ -181,23 +198,24 @@ function addEmployee() {
         name: 'employee_role',
         type: 'list',
         message: 'What is the employees role?',
-        choices: [],
+        choices: roleChoices,
       },
       {
         name: 'employee_manager',
         type: 'list',
-        message: 'Who is the employees manager?',
-        choices: [],
-        // choices: ['None', 'Ashley Rodriguez', 'Christian Eckenrode', 'John Doe', 'Mike Chan', 'Malia Brown', 'Tom Allen ', 'Kevin Tupik', 'Sarah Lourd'],
+        message: 'Who is he/she a manager to?',
+        choices: managerChoices,
       },
     ])
     .then((answer) => {
-      const query4 = '';
-      connection.query(query4, [answer.first_name, answer.last_name, answer.employee_role, answer.employee_manager], (err, res) => {
-        if (err) throw err;
-        console.table(res);
-        startProgram();
-      });
+      const query4 = 'INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES(?,?,?,?);';
+      connection.query(query4,
+        [answer.first_name, answer.last_name, answer.employee_role, answer.employee_manager],
+        (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          startProgram();
+        });
     });
 }
 // -----------------------------------------------------------------------------------
@@ -297,9 +315,52 @@ function promptRoleUpdate(roleChoices, employeeId) {
 }
 //-----------------------------------------------------------------------------------------
 
+// ----------------Update Employee manager ----------------------------------------------------
+function updateEmployeeManager() {
+  const query1 = 'select employee.id, employee.first_name,employee.last_name FROM employee;';
+  connection.query(query1, (err, res) => {
+    if (err) throw err;
+    const employeeChoices = res.map((data) => ({
+      value: data.id, name: `${data.first_name} ${data.last_name}`,
+    }));
+    inquirer
+      .prompt(
+        {
+          name: 'employee_id',
+          type: 'list',
+          message: 'Manager name?',
+          choices: employeeChoices,
+        })
+      .then((answer) => {
+        sendManager(employeeChoices, answer.employee_id);
+      });
+  });
+}
+
+function sendManager(employeeChoices, employeeId) {
+  inquirer
+    .prompt(
+      {
+        name: 'manager_id',
+        type: 'list',
+        message: 'Employee name?',
+        choices: employeeChoices,
+      },
+    )
+    .then((answer) => {
+      const query6 = 'update employee set employee.manager_id=? where employee.id=?';
+      connection.query(query6, [answer.manager_id, employeeId], (err1, res1) => {
+        if (err1) throw err1;
+        console.table(res1);
+        startProgram();
+      });
+    });
+}
+//-----------------------------------------------------------------------------------------
+
 // ---------------- View all roles ----------------------------------------
 function viewAllRoles() {
-  const query7 = 'select id,title as Roles from role';
+  const query7 = 'select role.id,role.title as Role,role.salary,department.name as department from role left join department on (role.department_id=department.id)';
   connection.query(query7, (err, res) => {
     if (err) throw err;
     console.table(res);
@@ -310,6 +371,17 @@ function viewAllRoles() {
 
 // ----------------Add role -----------------------------------------------------------------
 function addRole() {
+  const query = `select department.id,department.name
+  FROM employee INNER JOIN role ON (employee.role_id = role.id) INNER JOIN department ON (department.id = role.department_id) group by department.id,department.name;`;
+  connection.query(query, (err, res) => {
+    if (err) throw err;
+    const departmentChoices = res.map((data) => ({
+      value: data.id, name: data.name,
+    }));
+    sendDepartment(departmentChoices);
+  });
+}
+function sendDepartment(departmentChoices) {
   inquirer
     .prompt([
       {
@@ -326,17 +398,18 @@ function addRole() {
         name: 'role_department_id',
         type: 'list',
         message: 'Which department the role is under?',
-        choices: [],
+        choices: departmentChoices,
       },
 
     ])
     .then((answer) => {
       const query8 = 'insert into role (title,salary,department_id) values(?,?,?);';
-      connection.query(query8, [answer.role_title, answer.role_salary, answer.role_department_id], (err, res) => {
-        if (err) throw err;
-        console.table(res);
-        startProgram();
-      });
+      connection.query(query8, [answer.role_title, answer.role_salary, answer.role_department_id],
+        (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          startProgram();
+        });
     });
 }
 //-------------------------------------------------------------------------------------------
